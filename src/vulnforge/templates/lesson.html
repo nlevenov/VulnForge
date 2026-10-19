@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}{{ lesson.title }} &mdash; VulnForge{% endblock %}
+{% block content %}
+<nav class="crumb"><a href="{{ url_for('home') }}">&larr; All lessons</a></nav>
+<section class="lesson-head">
+  <h1>{{ lesson.title }}</h1>
+  <div class="meta">
+    <span class="badge diff-{{ lesson.difficulty }}">{{ lesson.difficulty }}</span>
+    <span class="tag">{{ lesson.owasp }}</span>
+    <span class="tag">{{ lesson.cwe }}</span>
+    {% if lesson.id in captured %}<span class="flag-got">✓ flag captured</span>{% endif %}
+  </div>
+  <p class="description">{{ lesson.description }}</p>
+</section>
+
+<div class="panels">
+  <section class="panel vuln">
+    <h2>🔓 Vulnerable</h2>
+    <pre class="code"><code>{{ lesson.vuln_code }}</code></pre>
+    <details class="hint" open>
+      <summary>Exploit hint</summary>
+      <p>{{ lesson.exploit_hint }}</p>
+    </details>
+  </section>
+  <section class="panel secure">
+    <h2>🔒 Secure</h2>
+    <pre class="code"><code>{{ lesson.secure_code }}</code></pre>
+    <details class="hint">
+      <summary>Why this is safe</summary>
+      <p>{{ lesson.fix_explanation }}</p>
+    </details>
+  </section>
+</div>
+
+<section class="try">
+  <h2>Try it</h2>
+  <form method="post" class="attack-form">
+    {% for name, label, placeholder, kind in lesson.inputs %}
+    <label>{{ label }}
+      <input type="text" name="{{ name }}" placeholder="{{ placeholder }}"
+             value="{{ request.form.get(name, '') }}" autocomplete="off" spellcheck="false">
+    </label>
+    {% endfor %}
+    <div class="run-buttons">
+      <button type="submit" name="mode" value="vuln" class="btn-vuln">Run against vulnerable</button>
+      <button type="submit" name="mode" value="secure" class="btn-secure">Run against secure</button>
+    </div>
+  </form>
+
+  {% if result is not none %}
+  <div class="result mode-{{ mode }} {{ 'status-ok' if result.status < 400 else 'status-blocked' }}">
+    <div class="result-head">
+      <span class="which">{{ 'VULNERABLE' if mode == 'vuln' else 'SECURE' }} implementation</span>
+      <span class="http">HTTP {{ result.status }}</span>
+    </div>
+    <div class="result-label">{{ lesson.output_label }}:</div>
+    {% if result.is_html %}
+      <div class="rendered-output">{{ rendered_output }}</div>
+      <details class="raw"><summary>view raw HTML the server returned</summary><pre>{{ result.output }}</pre></details>
+    {% else %}
+      <pre class="output">{{ rendered_output }}</pre>
+    {% endif %}
+    {% if result.detail %}<p class="detail">{{ result.detail }}</p>{% endif %}
+    {% if result.flag %}
+      <div class="flag-capture">🏁 Flag captured: <code>{{ result.flag }}</code></div>
+    {% endif %}
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

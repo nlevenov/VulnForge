@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}VulnForge{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="warning-banner" role="alert">
+    ⚠ VulnForge is <b>intentionally vulnerable</b> &mdash; a local learning lab. Never deploy it,
+    never expose it to a network, never point it at real data.
+  </div>
+  <header class="site-header">
+    <a class="brand" href="{{ url_for('home') }}">Vuln<span>Forge</span></a>
+    <div class="score">Flags captured: <b>{{ captured|length }}</b> / {{ total }}</div>
+    <form action="{{ url_for('reset') }}" method="post" class="reset-form">
+      <button type="submit" class="btn-reset" title="Wipe the sandbox DB and your progress">Reset lab</button>
+    </form>
+  </header>
+  <main>{% block content %}{% endblock %}</main>
+  <footer class="site-footer">
+    VulnForge &mdash; an OWASP Top&nbsp;10 teaching lab. Each lesson pairs a working exploit with
+    the fix that stops it. For education on your own machine only.
+  </footer>
+</body>
+</html>

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="intro">
+  <h1>OWASP Top&nbsp;10, attacked and defended</h1>
+  <p>
+    Every lesson below exposes the same feature twice &mdash; once written insecurely and once
+    written correctly. Run the exploit against the vulnerable version to capture its flag, then
+    flip to the secure version and watch the same attack fail. The vulnerabilities are real but
+    confined: file, command and network operations run against an in-process sandbox, and the
+    database is fake and reset on demand.
+  </p>
+</section>
+{% for owasp, items in groups.items() %}
+<section class="group">
+  <h2>{{ owasp }}</h2>
+  <div class="cards">
+    {% for lesson in items %}
+    <a class="card {{ 'done' if lesson.id in captured else '' }}" href="{{ url_for('lesson_view', lesson_id=lesson.id) }}">
+      <div class="card-head">
+        <span class="title">{{ lesson.title }}</span>
+        <span class="badge diff-{{ lesson.difficulty }}">{{ lesson.difficulty }}</span>
+      </div>
+      <p class="summary">{{ lesson.summary }}</p>
+      <div class="card-foot">
+        <span class="cwe">{{ lesson.cwe }}</span>
+        {% if lesson.id in captured %}<span class="flag-got">✓ flag captured</span>{% endif %}
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endfor %}
+{% endblock %}

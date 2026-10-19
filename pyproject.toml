@@ -1,0 +1,63 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vulnforge"
+version = "1.0.0"
+description = "A deliberately-vulnerable web application and its hardened twin: every OWASP flaw paired with a secure implementation, an explanation, and tests that prove both the exploit and the fix. For learning on localhost only."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Nikola Levenov" }]
+requires-python = ">=3.10"
+keywords = ["security", "owasp", "appsec", "secure-coding", "education", "web-security", "ctf"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Topic :: Security",
+    "Topic :: Education",
+    "License :: OSI Approved :: MIT License",
+    "Framework :: Flask",
+]
+dependencies = [
+    "flask>=3.0",
+    "markupsafe>=2.1",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "ruff>=0.4", "bandit>=1.7", "pip-audit>=2.7"]
+
+[project.scripts]
+vulnforge = "vulnforge.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+vulnforge = ["templates/*.html", "static/*", "sandbox_data/**/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "S"]
+ignore = ["S101"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S"]
+# The lessons/ package contains INTENTIONALLY vulnerable code for teaching.
+# Each insecure pattern is deliberate, paired with a secure version in the same
+# file, and contained by the sandbox; flagging them as findings is the point of
+# the project, not a defect to fix, so the scanner is scoped out of this dir.
+"src/vulnforge/lessons/*" = ["S"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["vulnforge"]
+known-local-folder = ["helpers", "conftest"]
+
+[tool.bandit]
+exclude_dirs = ["tests", "src/vulnforge/lessons"]
